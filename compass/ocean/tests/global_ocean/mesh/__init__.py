@@ -14,6 +14,7 @@ from compass.ocean.tests.global_ocean.mesh.qu import (
 from compass.ocean.tests.global_ocean.mesh.rrs6to18 import RRS6to18BaseMesh
 from compass.ocean.tests.global_ocean.mesh.so12to60 import SO12to60BaseMesh
 from compass.ocean.tests.global_ocean.mesh.wc14 import WC14BaseMesh
+from compass.ocean.tests.global_ocean.mesh.gom5 import GoM5BaseMesh
 from compass.ocean.tests.global_ocean.metadata import (
     get_author_and_email_from_git,
 )
@@ -100,6 +101,8 @@ class Mesh(TestCase):
             base_mesh_step = KuroshioBaseMesh(self, name=name, subdir=subdir)
         elif mesh_name in ['WC14', 'WCwISC14']:
             base_mesh_step = WC14BaseMesh(self, name=name, subdir=subdir)
+        elif mesh_name in ['GoM5', 'GoMwISC5']:
+            base_mesh_step = GoM5BaseMesh(self, name=name, subdir=subdir)
         else:
             raise ValueError(f'Unknown mesh name {mesh_name}')
 
