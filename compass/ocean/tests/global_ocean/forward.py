@@ -194,20 +194,20 @@ class ForwardStep(Step):
                                                 'forward_threads')
         super().constrain_resources(available_resources)
 
-    def runtime_setup(self):
-        """
-        Update the time step based on config options that a user might have
-        changed
-        """
-        if self.get_dt_from_min_res:
-            dt, btr_dt = self._get_dts()
-            if self.time_integrator == 'split_explicit':
-                self.update_namelist_at_runtime({'config_dt': dt,
-                                                 'config_btr_dt': btr_dt})
-            else:
-                # RK4, so use the smaller time step
-                self.update_namelist_at_runtime({'config_dt': btr_dt})
-        super().runtime_setup()
+#    def runtime_setup(self):
+#        """
+#        Update the time step based on config options that a user might have
+#        changed
+#        """
+#        if self.get_dt_from_min_res:
+#            dt, btr_dt = self._get_dts()
+#            if self.time_integrator == 'split_explicit':
+#                self.update_namelist_at_runtime({'config_dt': dt,
+#                                                 'config_btr_dt': btr_dt})
+#            else:
+#                # RK4, so use the smaller time step
+#                self.update_namelist_at_runtime({'config_dt': btr_dt})
+#        super().runtime_setup()
 
     def run(self):
         """
