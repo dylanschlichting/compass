@@ -199,6 +199,7 @@ class ForwardStep(Step):
                                                 'forward_threads')
         super().constrain_resources(available_resources)
 
+<<<<<<< HEAD
     def runtime_setup(self):
         """
         Update the time step based on config options that a user might have
@@ -213,6 +214,22 @@ class ForwardStep(Step):
                 # RK4, so use the smaller time step
                 self.update_namelist_at_runtime({'config_dt': btr_dt})
         super().runtime_setup()
+=======
+#    def runtime_setup(self):
+#        """
+#        Update the time step based on config options that a user might have
+#        changed
+#        """
+#        if self.get_dt_from_min_res:
+#            dt, btr_dt = self._get_dts()
+#            if self.time_integrator == 'split_explicit':
+#                self.update_namelist_at_runtime({'config_dt': dt,
+#                                                 'config_btr_dt': btr_dt})
+#            else:
+#                # RK4, so use the smaller time step
+#                self.update_namelist_at_runtime({'config_dt': btr_dt})
+#        super().runtime_setup()
+>>>>>>> 4dbe1dc8565c9074ed4e8173a15223e2959c9ad8
 
     def run(self):
         """
