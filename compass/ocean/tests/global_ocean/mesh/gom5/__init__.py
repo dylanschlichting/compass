@@ -115,7 +115,7 @@ class GoM5BaseMesh(QuasiUniformSphericalMeshStep):
             hr_atl_inner = 30.0
             hr_gom_cen = 14.0
             hr_gom_west = 1.5
-            dlon = 0.015
+            dlon = 0.0125
         dlat = dlon
         earth_radius = constants['SHR_CONST_REARTH']
         # print('\nCreating cellWidth on a lat-lon grid of: {0:.2f} x {0:.2f} '

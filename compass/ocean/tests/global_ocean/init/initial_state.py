@@ -186,8 +186,8 @@ class InitialState(Step):
         """
         Update the Haney number at runtime based on the config option.
         """
-        rx1_max = self.config.getfloat('global_ocean', 'rx1_max')
-        self.update_namelist_at_runtime({'config_rx1_max': f'{rx1_max}'})
+        #rx1_max = self.config.getfloat('global_ocean', 'rx1_max')
+       # self.update_namelist_at_runtime({'config_rx1_max': f'{rx1_max}'})
 
     def run(self):
         """
@@ -203,27 +203,28 @@ class InitialState(Step):
         plot_vertical_grid(grid_filename='vertical_grid.nc', config=config,
                            out_filename='vertical_grid.png')
 
-        min_levels = config.getint('global_ocean', 'min_levels')
+        #min_levels = config.getint('global_ocean', 'min_levels')
         # minimum depth will be the depth of the middle of the minimum layer
         # so that MPAS-Ocean init mode will convert it back to the same
         # minimm number of levels
-        min_depth = 0.5 * (interfaces[min_levels - 1] +
-                           interfaces[min_levels])
-        namelist = {'config_global_ocean_minimum_depth': f'{min_depth}'}
+        # min_depth = 0.5 * (interfaces[min_levels - 1] +
+        #                   interfaces[min_levels])
+        #namelist = {'config_global_ocean_minimum_depth': f'{min_depth}'}
 
-        if self.mesh.with_ice_shelf_cavities:
-            frac = self.adjustment_fraction
-            cavity_min_levels = section.getint('cavity_min_levels')
-            min_thick_init = section.getfloat(
-                'cavity_min_layer_thickness_initial')
-            min_thick_final = section.getfloat(
-                'cavity_min_layer_thickness_final')
-            cavity_min_layer_thickness = (
-                (1.0 - frac) * min_thick_init + frac * min_thick_final)
-            namelist['config_rx1_min_levels'] = f'{cavity_min_levels}'
-            namelist['config_rx1_min_layer_thickness'] = \
-                f'{cavity_min_layer_thickness}'
+        #if self.mesh.with_ice_shelf_cavities:
+        #    frac = self.adjustment_fraction
+        #    cavity_min_levels = section.getint('cavity_min_levels')
+        #    min_thick_init = section.getfloat(
+        #        'cavity_min_layer_thickness_initial')
+        #    min_thick_final = section.getfloat(
+        #        'cavity_min_layer_thickness_final')
+        #    cavity_min_layer_thickness = (
+        #        (1.0 - frac) * min_thick_init + frac * min_thick_final)
+        #    namelist['config_rx1_min_levels'] = f'{cavity_min_levels}'
+        #    namelist['config_rx1_min_layer_thickness'] = \
+        #        f'{cavity_min_layer_thickness}'
 
+<<<<<<< Updated upstream
             min_water_column_thickness = \
                 cavity_min_layer_thickness * cavity_min_levels
 
@@ -231,6 +232,9 @@ class InitialState(Step):
                 topo_filename, min_water_column_thickness)
 
         self.update_namelist_at_runtime(namelist)
+=======
+        #self.update_namelist_at_runtime(namelist)
+>>>>>>> Stashed changes
 
         symlink(target=topo_filename, link_name='topography.nc')
 

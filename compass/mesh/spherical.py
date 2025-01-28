@@ -153,7 +153,11 @@ class SphericalBaseStep(Step):
         #               transform=ccrs.PlateCarree(),
         #               extent=[-180, 180, -90, 90], cmap=cmap, zorder=0,
         #               vmin=round(min_width), vmax=round(max_width))
+<<<<<<< Updated upstream
         dlon = 0.1 #Change this to match __init__.py
+=======
+        dlon = 0.1#0.0125#0.015#0.1 #Change this to match __init__.py
+>>>>>>> Stashed changes
         dlat = dlon
         nlon = int(360. / dlon) + 1
         nlat = int(180. / dlat) + 1
