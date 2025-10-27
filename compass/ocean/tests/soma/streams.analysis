@@ -13,14 +13,6 @@
 
 </stream>
 
-<stream name="okuboWeissOutput"
-        precision="double"
-        output_interval="00-00-05_00:00:00"
-        clobber_mode="overwrite"
-        reference_time="0001-01-01_00:00:00">
-
-</stream>
-
 <stream name="highFrequencyOutput"
         precision="double"
         clobber_mode="overwrite"
@@ -28,15 +20,6 @@
 
 </stream>
 
-<stream name="eliassenPalmOutput"
-        precision="double"
-        clobber_mode="overwrite"
-        output_interval="00-01-00_00:00:00">
-
-</stream>
-
-<stream name="eliassenPalmRestart"
-        filename_interval="output_interval"/>
 
 <stream name="lagrPartTrackInput"
         filename_template="particles.nc">

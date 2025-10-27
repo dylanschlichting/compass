@@ -6,13 +6,34 @@ config_AM_zonalMean_num_bins = 100
 config_AM_okuboWeiss_enable = .true.
 config_AM_okuboWeiss_eddy_min_cells = 100
 config_AM_highFrequencyOutput_enable = .true.
-config_AM_eliassenPalm_enable = .true.
+config_AM_eliassenPalm_enable = .false.
 config_AM_eliassenPalm_compute_interval = '03_00:00:00'
 config_AM_eliassenPalm_nBuoyancyLayers = 100
 config_AM_eliassenPalm_rhomin_buoycoor = 1028.0
 config_AM_eliassenPalm_rhomax_buoycoor = 1030.7
-config_AM_mixedLayerDepths_enable = .true.
+config_AM_mixedLayerDepths_enable = .false.
 config_AM_timeFilters_enable = .false.
 config_AM_timeFilters_initialize_filters = .false.
 config_AM_lagrPartTrack_enable = .false.
 config_AM_lagrPartTrack_region_stream = 'none'
+
+config_use_numericalMixingTracers = .true.
+
+config_AM_discreteVarianceDecay_enable = .true.
+config_AM_discreteVarianceDecay_compute_interval = 'dt'
+config_AM_discreteVarianceDecay_output_stream = 'discreteVarianceDecayOutput'
+config_AM_discreteVarianceDecay_compute_on_startup = .false.
+config_AM_discreteVarianceDecay_write_on_startup = .false.
+
+config_AM_timeSeriesStatsCustom_enable = .true.
+config_AM_timeSeriesStatsCustom_compute_on_startup = .false.
+config_AM_timeSeriesStatsCustom_write_on_startup = .false.
+config_AM_timeSeriesStatsCustom_compute_interval = 'dt'
+config_AM_timeSeriesStatsCustom_output_stream = 'timeSeriesStatsCustomOutput'
+config_AM_timeSeriesStatsCustom_restart_stream = 'timeSeriesStatsCustomRestart'
+config_AM_timeSeriesStatsCustom_operation = 'avg'
+config_AM_timeSeriesStatsCustom_reference_times = 'initial_time'
+config_AM_timeSeriesStatsCustom_duration_intervals = 'repeat_interval'
+config_AM_timeSeriesStatsCustom_repeat_intervals = 'reset_interval'
+config_AM_timeSeriesStatsCustom_reset_intervals = '00-00-07_00:00:00'
+config_AM_timeSeriesStatsCustom_backward_output_offset = '00-00-07_00:00:00'

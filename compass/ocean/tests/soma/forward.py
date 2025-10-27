@@ -17,8 +17,9 @@ class Forward(Step):
     with_particles : bool
         Whether to run with Lagrangian particles
     """
+
     def __init__(self, test_case, resolution, with_particles,
-                 with_surface_restoring, long, three_layer):
+                 with_surface_restoring, long, three_layer, vertical_grid=None):
         """
         Create a new test case
 
@@ -37,105 +38,109 @@ class Forward(Step):
             Whether surface restoring is included in the simulation
 
         long : bool
-            Whether to run a long (3-year) simulation to quasi-equilibrium
+            Whether to run a long (multi-year) simulation
 
         three_layer : bool
-            Whether to use only 3 vertical layers and no continental shelf
+            Whether to use only 3 vertical layers
+
+        vertical_grid : str, optional
+            The vertical grid type: '60layerPHC', '80layerE3SMv1', '100layerE3SMv1'
         """
         self.resolution = resolution
         self.with_particles = with_particles
-        res_params = {'32km': {'cores': 25,
-                               'min_tasks': 3,
-                               'dt': "'00:24:00'",
-                               'btr_dt': "'0000_00:00:48'",
-                               'mom_del4': "2.0e11",
-                               'run_duration': "'0000_02:00:00'"},
-                      '16km': {'cores': 100,
-                               'min_tasks': 10,
-                               'dt': "'00:12:00'",
-                               'btr_dt': "'0000_00:00:24'",
-                               'mom_del4': "2.0e10 ",
-                               'run_duration': "'0000_01:00:00'"},
-                      '8km': {'cores': 400,
-                              'min_tasks': 40,
-                              'dt': "'00:06:00'",
-                              'btr_dt': "'0000_00:00:12'",
-                              'mom_del4': "2.0e9",
-                              'run_duration': "'0000_00:30:00'"},
-                      '4km': {'cores': 1600,
-                              'min_tasks': 160,
-                              'dt': "'00:03:00'",
-                              'btr_dt': "'0000_00:00:06'",
-                              'mom_del4': "4.0e8",
-                              'run_duration': "'0000_00:15:00'"}}
+
+        res_params = {
+            '32km': {'cores': 25, 'min_tasks': 3, 'dt': "'00:32:00'",
+                     'btr_dt': "'0000_00:01:36'", 'mom_del4': "2.0e11",
+                     'run_duration': "'0010_00:00:00:00:00'"},
+            '16km': {'cores': 100, 'min_tasks': 10, 'dt': "'00:16:00'",
+                     'btr_dt': "'0000_00:00:48'", 'mom_del4': "2.0e10",
+                     'run_duration': "'0011_00:00:00:00:00'"},
+            '8km': {'cores': 400, 'min_tasks': 40, 'dt': "'00:08:00'",
+                    'btr_dt': "'0000_00:00:24'", 'mom_del4': "2.0e9",
+                    'run_duration': "'0011_00:00:00:00:00'"},
+            '4km': {'cores': 1600, 'min_tasks': 160, 'dt': "'00:04:00'",
+                    'btr_dt': "'0000_00:00:12'", 'mom_del4': "4.0e8",
+                    'run_duration': "'0011_00:00:00:00:00'"}
+        }
 
         if resolution not in res_params:
             raise ValueError(
                 f'Unsupported resolution {resolution}. Supported values are: '
-                f'{list(res_params)}')
+                f'{list(res_params)}'
+            )
 
         res_params = res_params[resolution]
 
         super().__init__(test_case=test_case, name='forward', subdir=None,
-                         ntasks=res_params['cores'],
-                         min_tasks=res_params['min_tasks'])
-        # make sure output is double precision
-        self.add_streams_file('compass.ocean.streams', 'streams.output')
+                         ntasks=res_params['cores'], min_tasks=res_params['min_tasks'])
 
+        # streams and namelist files
+        self.add_streams_file('compass.ocean.streams', 'streams.output')
         self.add_namelist_file('compass.ocean.tests.soma', 'namelist.forward')
 
         if long:
-            output_interval = "0010_00:00:00"
-            restart_interval = "0010_00:00:00"
+            output_interval = "0007_00:00:00"
+            restart_interval = "0090_00:00:00"
         else:
             output_interval = res_params['run_duration'].replace("'", "")
-            restart_interval = "0030_00:00:00"
-        replacements = dict(
-            output_interval=output_interval, restart_interval=restart_interval)
+            restart_interval = "0090_00:00:00"
+
+        replacements = dict(output_interval=output_interval,
+                            restart_interval=restart_interval)
+
         self.add_streams_file(package='compass.ocean.tests.soma',
                               streams='streams.forward',
                               template_replacements=replacements)
+
         self.add_namelist_file('compass.ocean.tests.soma', 'namelist.analysis')
         self.add_streams_file('compass.ocean.tests.soma', 'streams.analysis')
 
         options = dict()
         for option in ['dt', 'btr_dt', 'mom_del4', 'run_duration']:
             options[f'config_{option}'] = res_params[option]
+
         if with_particles:
             options['config_AM_lagrPartTrack_enable'] = '.true.'
+
         if long:
-            # run for 3 years instead of 3 time steps
             options['config_start_time'] = "'0001-01-01_00:00:00'"
-            options['config_stop_time'] = "'0004-01-01_00:00:00'"
+            options['config_stop_time'] = "'0011-01-01_00:00:00'"
             options['config_run_duration'] = "'none'"
 
+        # --- vertical grid configuration ---
         if three_layer:
-            # set config options for 3-layer run instead of 60 layers
             options['config_vert_coord_movement'] = "'impermeable_interfaces'"
             options['config_use_cvmix'] = 'false.'
             options['config_AM_mixedLayerDepths_enable'] = 'false.'
+            options['config_soma_vert_levels'] = '3'
+            options['config_vertical_grid'] = "'uniform'"
+        else:
+            if vertical_grid is None:
+                vertical_grid = '60layerPHC'
+            levels = 60 if vertical_grid == '60layerPHC' else \
+                     80 if vertical_grid == '80layerE3SMv1' else 100
+            options['config_soma_vert_levels'] = levels
+            options['config_vertical_grid'] = f"'{vertical_grid}'"
 
         if with_surface_restoring:
             options['config_use_activeTracers_surface_restoring'] = '.true.'
 
         self.add_namelist_options(options=options)
 
-        self.add_input_file(filename='mesh.nc',
-                            target='../initial_state/culled_mesh.nc')
-        self.add_input_file(filename='init.nc',
-                            target='../initial_state/initial_state.nc')
-        self.add_input_file(filename='forcing.nc',
-                            target='../initial_state/forcing.nc')
-        self.add_input_file(filename='graph.info',
-                            target='../initial_state/graph.info')
-
+        # input/output files
+        self.add_input_file(filename='mesh.nc', target='../initial_state/culled_mesh.nc')
+        self.add_input_file(filename='init.nc', target='../initial_state/initial_state.nc')
+        self.add_input_file(filename='forcing.nc', target='../initial_state/forcing.nc')
+        self.add_input_file(filename='graph.info', target='../initial_state/graph.info')
         self.add_model_as_input()
 
         self.add_output_file(filename='output/output.0001-01-01_00.00.00.nc')
 
         if with_particles:
             self.add_output_file(
-                filename='analysis_members/lagrPartTrack.0001-01-01_00.00.00.nc')
+                filename='analysis_members/lagrPartTrack.0001-01-01_00.00.00.nc'
+            )
 
     def run(self):
         """
@@ -152,6 +157,7 @@ class Forward(Step):
             build_particle_simple(
                 f_grid='mesh.nc', f_name='particles.nc',
                 f_decomp=f'graph.info.part.{ntasks}',
-                buoySurf=np.linspace(min_den, max_den, nsurf))
+                buoySurf=np.linspace(min_den, max_den, nsurf)
+            )
 
         run_model(self, partition_graph=False)

@@ -28,10 +28,14 @@ class SomaTestCase(TestCase):
 
     three_layer : bool
         Whether to use only 3 vertical layers and no continental shelf
+
+    vertical_grid : str
+        The vertical grid type to use: '60layerPHC', '80layerE3SMv1', or '100layerE3SMv1'
     """
 
     def __init__(self, test_group, resolution, with_particles,
-                 with_surface_restoring, long, three_layer):
+                 with_surface_restoring, long, three_layer,
+                 vertical_grid='60layerPHC'):
         """
         Create the test case
 
@@ -54,12 +58,16 @@ class SomaTestCase(TestCase):
 
         three_layer : bool
             Whether to use only 3 vertical layers and no continental shelf
+
+        vertical_grid : str
+            The vertical grid type to use: '60layerPHC', '80layerE3SMv1', or '100layerE3SMv1'
         """
         self.resolution = resolution
         self.with_particles = with_particles
         self.with_surface_restoring = with_surface_restoring
         self.long = long
         self.three_layer = three_layer
+        self.vertical_grid = vertical_grid
 
         name = None
         if three_layer:
@@ -85,14 +93,21 @@ class SomaTestCase(TestCase):
         if name is None:
             name = 'default'
 
-        subdir = f'{resolution}/{name}'
+        # 🔹 Include vertical grid in the test path only for 80 or 100 layers
+        if vertical_grid in ['80layerE3SMv1', '100layerE3SMv1']:
+            subdir = f'{vertical_grid}/{resolution}/{name}'
+        else:
+            subdir = f'{resolution}/{name}'
 
         super().__init__(test_group=test_group, name=name, subdir=subdir)
 
         self.add_step(InitialState(
-            test_case=self, resolution=resolution,
+            test_case=self,
+            resolution=resolution,
             with_surface_restoring=with_surface_restoring,
-            three_layer=three_layer))
+            three_layer=three_layer,
+            vertical_grid=vertical_grid))   
+
         options = dict()
         if with_surface_restoring:
             options['config_use_activeTracers_surface_restoring'] = '.true.'
@@ -101,7 +116,8 @@ class SomaTestCase(TestCase):
             test_case=self, resolution=resolution,
             with_particles=with_particles,
             with_surface_restoring=with_surface_restoring, long=long,
-            three_layer=three_layer))
+            three_layer=three_layer,
+            vertical_grid=vertical_grid))
 
         if with_particles:
             self.add_step(Analysis(test_case=self, resolution=resolution))

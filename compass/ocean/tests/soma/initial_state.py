@@ -18,7 +18,7 @@ class InitialState(Step):
     """
 
     def __init__(self, test_case, resolution, with_surface_restoring,
-                 three_layer):
+                 three_layer, vertical_grid):
         """
         Create the step
 
@@ -36,6 +36,8 @@ class InitialState(Step):
         three_layer : bool
             Whether to use only 3 vertical layers and no continental shelf
 
+        vertical_grid : str
+            The vertical grid type to use: '60layerPHC' or '100layerE3SMv1' or '80layerE3SMv1'
         """
         self.resolution = resolution
 
@@ -83,8 +85,13 @@ class InitialState(Step):
             options['config_soma_vert_levels'] = '3'
             options['config_vertical_grid'] = "'uniform'"
         else:
-            options['config_soma_vert_levels'] = '60'
-            options['config_vertical_grid'] = "'60layerPHC'"
+            # Use the vertical_grid argument
+            options['config_soma_vert_levels'] = str(
+                60 if vertical_grid == '60layerPHC' else
+                80 if vertical_grid == '80layerE3SMv1' else
+                100
+            )
+            options['config_vertical_grid'] = f"'{vertical_grid}'"
 
         self.add_namelist_file(package, 'namelist.init', mode='init',
                                out_name='namelist_mark_land.ocean')
